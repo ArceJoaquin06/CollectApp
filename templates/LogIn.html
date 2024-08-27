@@ -5,7 +5,33 @@
 
 {% block body %}
 <body>
-    <h1>LogIn</h1>
-    <div>aca va el Login</div>
+    <div class="main">
+        <input type="checkbox" id="chk" aria-hidden="true">
+
+        <div class="signup">
+            <form>
+                <label for="chk" aria-hidden="true"> Sign Up</label>
+                <input type="text" name="txt" placeholder="Nombre de Usuario" required>
+                <input type="email" name="email" placeholder="Email" required>
+                <input type="password" name="psw" placeholder="Contraseña" required>
+                <button>Sign up</button>
+            </form>
+
+        </div>
+        
+        <div class="login">
+            <form>
+                <label for="chk" aria-hidden="true">Login</label>
+                <input type="email" name="email" placeholder="Email" required="">
+                <input type="password" name="psw" placeholder="Contraseña" required="">
+                <button>Login</button>
+            </form>
+            <form method="POST" action="/">
+                {{ form.csrf_token }}
+                {{ form.email.label }} {{ form.email }}
+                <input type="submit" value="Go">
+            </form>
+        </div>
+    </div>
 </body>
 {% endblock %}
