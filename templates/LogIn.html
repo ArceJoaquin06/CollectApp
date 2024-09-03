@@ -26,10 +26,11 @@
                 <input type="password" name="psw" placeholder="Contraseña" required="">
                 <button>Login</button>
             </form>
-            <form method="POST" action="/">
-                {{ form.csrf_token }}
-                {{ form.email.label }} {{ form.email }}
-                <input type="submit" value="Go">
+            <form method="POST" action="/login">
+                {{ form.hidden_tag() }}
+                {{ form.email.label }} {{ form.email() }}
+                {{ form.password.label }} {{ form.password() }}
+                {{ form.submit() }}
             </form>
         </div>
     </div>

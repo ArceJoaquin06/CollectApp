@@ -38,7 +38,8 @@ def load_user(user_id):
 
 @app.route('/')
 def principal():
-    return render_template('Login.html')
+    form = UserForm()
+    return render_template('LogIn.html', form=form)
 
 @app.route('/SingIn')
 def SingIn():
