@@ -1,6 +1,6 @@
 {% block extra_head %}
 <link rel="icon" href="https://i.pinimg.com/originals/74/ab/48/74ab48240e34df5e05a398e997a42b0e.png">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/Login.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/SignUp.css') }}">
 {% endblock %}
 
 {% block body %}
@@ -8,23 +8,17 @@
     <div class="main">
         <input type="checkbox" id="chk" aria-hidden="true">
 
+        <!-- Formulario del Sign Up -->
         <div class="signup">
             <form method="POST" action="/signup">
                 {{ form.hidden_tag() }}
                 
                 <label for="chk" aria-hidden="true">Sign Up</label>
                 
-            </form>
-        </div>
-        
-        <div class="login">
-            <form method="POST" action="/login">
-                {{ form.hidden_tag() }}
-                
-                <label for="chk" aria-hidden="true">Login</label>
-                
+                {{ form.username.label }} {{ form.username(size=32) }}<br>
                 {{ form.email.label }} {{ form.email(size=32) }}<br>
                 {{ form.password.label }} {{ form.password(size=32) }}<br>
+                {{ form.cvu.label }} {{ form.cvu(size=32) }}<br>
                 {{ form.submit() }}
             </form>
         </div>
