@@ -1,34 +1,45 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+import os
+import pymysql
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, login_required, logout_user, UserMixin
 from flask_wtf import FlaskForm
-from wtforms import StringField, EmailField, PasswordField, SubmitField
+from wtforms import StringField, EmailField, PasswordField, SubmitField, PasswordField
 from wtforms.validators import DataRequired, Email, Length
-import os
+from werkzeug.security import generate_password_hash, check_password_hash
+import mercadopago
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
+# Configurar el SDK de Mercado Pago
+sdk = mercadopago.SDK("YOUR_ACCESS_TOKEN")
+
+# Configurar PyMySQL
+pymysql.install_as_MySQLdb()
+
+# Configuración de base de datos
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') or 'mysql://uyddigykrd5b6y92:R56fundGBbUMxOzH9IoR@bi9craxtek4ln71naubv-mysql.services.clever-cloud.com:3306/bi9craxtek4ln71naubv?charset=utf8mb4&connect_timeout=60&read_timeout=60'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 db = SQLAlchemy(app)
 
 # Configuración para el Flask-Login
 login_manager = LoginManager(app)
 login_manager.login_view = 'principal'
 
+# Modelo de usuario
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(40), unique=True, nullable=False)
     cvu = db.Column(db.Integer, unique=True, nullable=False)
-    password = db.Column(db.String(30), nullable=False)
+    password = db.Column(db.String(128), nullable=False)
     email = db.Column(db.String(80), unique=True, nullable=False)
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+# Formularios de inicio de sesión y registro
 class UserForm(FlaskForm):
     email = EmailField('Email', validators=[DataRequired(), Length(1, 80), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
@@ -41,11 +52,12 @@ class SignUpForm(FlaskForm):
     cvu = PasswordField('CVU', validators=[DataRequired(), Length(8, 10)])
     submit = SubmitField('Sign Up')
 
-# Eliminar y recrear el 'user' para no tener q crear otra db
+# Crear y eliminar las tablas en la base de datos
 with app.app_context():
     db.drop_all()
-    db.create_all() 
+    db.create_all()
 
+# Rutas de la aplicación
 @app.route('/')
 def principal():
     """Ruta para la página de inicio de sesión."""
@@ -59,19 +71,19 @@ def signup():
     if form.validate_on_submit():
         username = form.username.data
         email = form.email.data
-        password = form.password.data
+        password = generate_password_hash(form.password.data)  # Encriptar la contraseña
         cvu = form.cvu.data
         
         # Crear una instancia de usuario
         new_user = User(username=username, email=email, password=password, cvu=cvu)
         
-        # Agrega el nuevo usuario
+        # Agregar el nuevo usuario a la base de datos
         db.session.add(new_user)
         db.session.commit()
         
-        # Autentificación del user
+        # Autenticar al usuario después del registro
         login_user(new_user)
-        flash('Registration successful!', 'success')
+        flash('¡Registro exitoso!', 'success')
         return redirect(url_for('home'))
     
     return render_template('SignUp.html', form=form)
@@ -90,17 +102,49 @@ def login():
         email = form.email.data
         password = form.password.data
         
-        user = User.query.filter_by(email=email, password=password).first()
-        if user:
+        user = User.query.filter_by(email=email).first()
+        if user and check_password_hash(user.password, password):  # Verificar la contraseña encriptada
             login_user(user)
-            flash('Login successful!', 'success')
+            flash('¡Inicio de sesión exitoso!', 'success')
             return redirect(url_for('home'))
         else:
-            flash('Invalid email or password', 'danger')
+            flash('Email o contraseña incorrectos', 'danger')
             return redirect(url_for('principal'))
     else:
-        flash('Form validation failed', 'danger')
+        flash('Fallo en la validación del formulario', 'danger')
         return redirect(url_for('principal'))
+
+@app.route('/logout')
+@login_required
+def logout():
+    """Ruta para cerrar sesión."""
+    logout_user()
+    flash('Has cerrado sesión', 'info')
+    return redirect(url_for('principal'))
+
+@app.route('/process_payment', methods=['POST'])
+def process_payment():
+    """Ruta para procesar pagos con Mercado Pago."""
+    data = request.json
+
+    payment_data = {
+        "transaction_amount": float(data['transactionAmount']),
+        "token": data['token'],
+        "description": data['description'],
+        "payment_method_id": data['paymentMethodId'],
+        "installments": int(data['installments']),
+        "payer": {
+            "email": data['payer']['email']
+        }
+    }
+
+    request_options = mercadopago.config.RequestOptions()
+    request_options.custom_headers = {
+        'x-idempotency-key': '<SOME_UNIQUE_VALUE>'
+    }
+
+    payment_response = sdk.payment().create(payment_data, request_options)
+    return jsonify(payment_response["response"])
 
 if __name__ == '__main__':
     app.run(debug=True, port=3500)

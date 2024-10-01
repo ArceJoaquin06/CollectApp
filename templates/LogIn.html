@@ -1,32 +1,65 @@
 {% block extra_head %}
 <link rel="icon" href="https://i.pinimg.com/originals/74/ab/48/74ab48240e34df5e05a398e997a42b0e.png">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/Login.css') }}">
+<style>
+    body {
+        background-color: #f5f5dc; /* Color crema */
+        font-family: Arial, sans-serif;
+    }
+
+    .main {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .title {
+        text-align: center;
+        font-size: 28px;
+        margin-bottom: 30px;
+        color: #333;
+        font-weight: bold;
+    }
+
+    .signup, .login {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+</style>
 {% endblock %}
 
 {% block body %}
 <body>
     <div class="main">
-        <input type="checkbox" id="chk" aria-hidden="true">
+        <div>
+            <!-- Título agregado -->
+            <h1 class="title">BIENVENIDO A NUESTRA APP DE COBRO Y PAGO</h1>
 
-        <div class="signup">
-            <form method="POST" action="/signup">
-                {{ form.hidden_tag() }}
-                
-                <label for="chk" aria-hidden="true">Sign Up</label>
-                
-            </form>
-        </div>
-        
-        <div class="login">
-            <form method="POST" action="/login">
-                {{ form.hidden_tag() }}
-                
-                <label for="chk" aria-hidden="true">Login</label>
-                
-                {{ form.email.label }} {{ form.email(size=32) }}<br>
-                {{ form.password.label }} {{ form.password(size=32) }}<br>
-                {{ form.submit() }}
-            </form>
+            <input type="checkbox" id="chk" aria-hidden="true">
+
+            <div class="signup">
+                <form method="POST" action="/signup">
+                    {{ form.hidden_tag() }}
+
+                    <label for="chk" aria-hidden="true">Sign Up</label>
+
+                </form>
+            </div>
+
+            <div class="login">
+                <form method="POST" action="/login">
+                    {{ form.hidden_tag() }}
+
+                    <label for="chk" aria-hidden="true">Login</label>
+
+                    {{ form.email.label }} {{ form.email(size=32) }}<br>
+                    {{ form.password.label }} {{ form.password(size=32) }}<br>
+                    {{ form.submit() }}
+                </form>
+            </div>
         </div>
     </div>
 </body>
