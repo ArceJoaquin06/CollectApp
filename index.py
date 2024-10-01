@@ -19,7 +19,7 @@ sdk = mercadopago.SDK("YOUR_ACCESS_TOKEN")
 pymysql.install_as_MySQLdb()
 
 # Configuración de base de datos
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') or 'mysql://uyddigykrd5b6y92:R56fundGBbUMxOzH9IoR@bi9craxtek4ln71naubv-mysql.services.clever-cloud.com:3306/bi9craxtek4ln71naubv?charset=utf8mb4&connect_timeout=60&read_timeout=60'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('mysql://uyddigykrd5b6y92:R56fundGBbUMxOzH9IoR@bi9craxtek4ln71naubv-mysql.services.clever-cloud.com:3306/bi9craxtek4ln71naubv?charset=utf8mb4&connect_timeout=60&read_timeout=60') or 'mysql://uyddigykrd5b6y92:R56fundGBbUMxOzH9IoR@bi9craxtek4ln71naubv-mysql.services.clever-cloud.com:3306/bi9craxtek4ln71naubv?charset=utf8mb4&connect_timeout=60&read_timeout=60'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -49,12 +49,12 @@ class SignUpForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(1, 40)])
     email = EmailField('Email', validators=[DataRequired(), Length(1, 80), Email()])
     password = PasswordField('Password', validators=[DataRequired(), Length(6, 30)])
-    cvu = PasswordField('CVU', validators=[DataRequired(), Length(8, 10)])
+    cvu = StringField('CVU', validators=[DataRequired(), Length(8, 10)])
     submit = SubmitField('Sign Up')
 
 # Crear y eliminar las tablas en la base de datos
 with app.app_context():
-    db.drop_all()
+    # db.drop_all()
     db.create_all()
 
 # Rutas de la aplicación
@@ -68,11 +68,13 @@ def principal():
 def signup():
     """Ruta para la página de registro de usuario."""
     form = SignUpForm()
+    print(form.errors)
     if form.validate_on_submit():
+        print("aaskudygdiu")
         username = form.username.data
         email = form.email.data
         password = generate_password_hash(form.password.data)  # Encriptar la contraseña
-        cvu = form.cvu.data
+        cvu = int(form.cvu.data)
         
         # Crear una instancia de usuario
         new_user = User(username=username, email=email, password=password, cvu=cvu)
@@ -88,6 +90,7 @@ def signup():
             return redirect(url_for('home'))  # Redirigir al usuario a la página principal
         except Exception as e:
             db.session.rollback()  # Revertir cualquier cambio si ocurre un error
+            print(e)  # Imprimir el error
             flash('Error al registrar el usuario. Por favor, inténtalo de nuevo.', 'danger')
             return redirect(url_for('signup'))  # Redirigir al formulario de registro
 
