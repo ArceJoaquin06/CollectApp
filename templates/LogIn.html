@@ -35,30 +35,17 @@
 <body>
     <div class="main">
         <div>
-            <!-- Título agregado -->
             <h1 class="title">BIENVENIDO A NUESTRA APP DE COBRO Y PAGO</h1>
-
-            <input type="checkbox" id="chk" aria-hidden="true">
-
-            <div class="signup">
-                <form method="POST" action="/signup">
-                    {{ form.hidden_tag() }}
-
-                    <label for="chk" aria-hidden="true">Sign Up</label>
-
-                </form>
-            </div>
-
             <div class="login">
                 <form method="POST" action="/login">
                     {{ form.hidden_tag() }}
-
-                    <label for="chk" aria-hidden="true">Login</label>
-
                     {{ form.email.label }} {{ form.email(size=32) }}<br>
                     {{ form.password.label }} {{ form.password(size=32) }}<br>
                     {{ form.submit() }}
                 </form>
+            </div>
+            <div>
+                <a href="{{ url_for('signup') }}">¿No tienes cuenta? Regístrate aquí</a>
             </div>
         </div>
     </div>

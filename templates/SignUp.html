@@ -6,21 +6,21 @@
 {% block body %}
 <body>
     <div class="main">
-        <input type="checkbox" id="chk" aria-hidden="true">
-
-        <!-- Formulario del Sign Up -->
-        <div class="signup">
-            <form method="POST" action="/signup">
-                {{ form.hidden_tag() }}
-                
-                <label for="chk" aria-hidden="true">Sign Up</label>
-                
-                {{ form.username.label }} {{ form.username(size=32) }}<br>
-                {{ form.email.label }} {{ form.email(size=32) }}<br>
-                {{ form.password.label }} {{ form.password(size=32) }}<br>
-                {{ form.cvu.label }} {{ form.cvu(size=32) }}<br>
-                {{ form.submit() }}
-            </form>
+        <div>
+            <h1 class="title">REGÍSTRATE EN NUESTRA APP DE COBRO Y PAGO</h1>
+            <div class="signup">
+                <form method="POST" action="/signup">
+                    {{ form.hidden_tag() }}
+                    {{ form.username.label }} {{ form.username(size=32) }}<br>
+                    {{ form.email.label }} {{ form.email(size=32) }}<br>
+                    {{ form.password.label }} {{ form.password(size=32) }}<br>
+                    {{ form.cvu.label }} {{ form.cvu(size=32) }}<br>
+                    {{ form.submit() }}
+                </form>
+            </div>
+            <div>
+                <a href="{{ url_for('principal') }}">¿Ya tienes cuenta? Inicia sesión aquí</a>
+            </div>
         </div>
     </div>
 </body>

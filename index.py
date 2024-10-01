@@ -77,15 +77,20 @@ def signup():
         # Crear una instancia de usuario
         new_user = User(username=username, email=email, password=password, cvu=cvu)
         
-        # Agregar el nuevo usuario a la base de datos
-        db.session.add(new_user)
-        db.session.commit()
-        
-        # Autenticar al usuario después del registro
-        login_user(new_user)
-        flash('¡Registro exitoso!', 'success')
-        return redirect(url_for('home'))
-    
+        try:
+            # Agregar el nuevo usuario a la base de datos
+            db.session.add(new_user)
+            db.session.commit()
+            
+            # Autenticar al usuario después del registro
+            login_user(new_user)
+            flash('¡Registro exitoso!', 'success')
+            return redirect(url_for('home'))  # Redirigir al usuario a la página principal
+        except Exception as e:
+            db.session.rollback()  # Revertir cualquier cambio si ocurre un error
+            flash('Error al registrar el usuario. Por favor, inténtalo de nuevo.', 'danger')
+            return redirect(url_for('signup'))  # Redirigir al formulario de registro
+
     return render_template('SignUp.html', form=form)
 
 @app.route('/home')
